@@ -1,0 +1,213 @@
+1. style.css
+/*
+Theme Name: Local Shop Theme
+Theme URI: https://yourshop.com
+Author: Sahil and Nitish
+Description: Custom theme for local business shop
+Version: 1.0
+Text Domain: localshop
+*/
+/* Base Styles */
+:root {
+--primary: #2a4365;
+--secondary: #f6ad55;
+--light: #f7fafc;
+}
+body {
+font-family: 'Inter', sans-serif;
+line-height: 1.6;
+}
+.container {
+width: 90%;
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 15px;
+}
+/* Header Styles */
+.site-header {
+background: var(--primary);
+color: white;
+padding: 1rem 0;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+/* WooCommerce Overrides */
+.woocommerce ul.products li.product {
+background: var(--light);
+padding: 1rem;
+border-radius: 8px;
+}
+2. functions.php
+<?php
+/**
+*/
+* Local Shop Theme functions
+// Theme Setup
+function local_shop_setup() {
+add_theme_support('title-tag');
+add_theme_support('woocommerce');
+add_theme_support('post-thumbnails');
+register_nav_menus(array(
+'primary' => __('Primary Menu', 'localshop'),
+'footer' => __('Footer Menu', 'localshop')
+));
+}
+add_action('after_setup_theme', 'local_shop_setup');
+// Enqueue Assets
+function local_shop_scripts() {
+// Google Fonts
+wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?
+family=Inter:wght@400;500;700&display=swap');
+// Main Stylesheet
+wp_enqueue_style('local-shop-style', get_stylesheet_uri());
+// Custom JS
+wp_enqueue_script('local-shop-script', get_template_directory_uri() . '/js/main.js', array(), '1.0', true);
+// WooCommerce conditional assets
+if (class_exists('WooCommerce')) {
+wp_enqueue_style('local-shop-woocommerce', get_template_directory_uri() .
+'/css/woocommerce.css');
+}
+}
+add_action('wp_enqueue_scripts', 'local_shop_scripts');
+// WooCommerce Overrides
+require get_template_directory() . '/inc/woocommerce-setup.php';
+3. header.php
+p
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo('charset'); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+<header class="site-header">
+<div class="container">
+<div class="header-grid">
+<div class="logo">
+<a href="<?php echo home_url('/'); ?>">
+<?php if (has_custom_logo()): ?>
+<?php the_custom_logo(); ?>
+<?php else: ?>
+<h1><?php bloginfo('name'); ?></h1>
+<?php endif; ?>
+</a>
+</div>
+<nav class="main-navigation">
+<?php
+wp_nav_menu(array(
+'theme_location' => 'primary',
+'container' => false,
+'menu_class' => 'primary-menu'
+></span>)
+));
+?>
+</nav>
+<div class="header-actions">
+<?php if (class_exists('WooCommerce')): ?>
+<a href="<?php echo wc_get_cart_url(); ?>" class="cart-link">
+Cart (<span class="cart-count"><?php echo WC()->cart->get_cart_contents_count(); ?
+</a>
+<?php endif; ?>
+</div>
+</div>
+</div>
+</header>
+<main class="site-content">
+4. footer.php
+</main>
+<footer class="site-footer">
+<div class="container">
+<div class="footer-grid">
+<div class="footer-widget">
+<h3>Contact Us</h3>
+<p>123 Shop Street<br>Your City, ST 12345</p>
+<p>Phone: (123) 456-7890</p>
+</div>
+<div class="footer-widget">
+<h3>Hours</h3>
+<p>Mon-Fri: 9am-7pm<br>Sat: 10am-5pm<br>Sun: Closed</p>
+</div>
+<div class="footer-widget">
+<h3>Quick Links</h3>
+<?php
+wp_nav_menu(array(
+'theme_location' => 'footer',
+'container' => false
+));
+?>
+</div>
+</div>
+<div class="copyright">
+<p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<?php wp_footer(); ?>
+</body>
+</html>
+5. WooCommerce Overrides
+/woocommerce/archive-product.php
+<?php
+/**
+*/
+* Shop archive template
+get_header(); ?>
+<div class="shop-container container">
+<div class="shop-header">
+<h1 class="page-title"><?php woocommerce_page_title(); ?></h1>
+<?php woocommerce_result_count(); ?>
+</div>
+<div class="shop-grid">
+<aside class="shop-sidebar">
+<?php dynamic_sidebar('shop-sidebar'); ?>
+</aside>
+<main class="shop-main">
+<?php
+if (woocommerce_product_loop()) {
+woocommerce_product_loop_start();
+if (wc_get_loop_prop('total')) {
+while (have_posts()) {
+the_post();
+wc_get_template_part('content', 'product');
+}
+}
+woocommerce_product_loop_end();
+// Pagination
+woocommerce_pagination();
+} else {
+do_action('woocommerce_no_products_found');
+}
+?>
+</main>
+</div>
+</div>
+<?php get_footer(); ?>
+6. Custom Page Template (page-shop.php)
+<?php
+/**
+*/
+* Template Name: Shop Homepage
+get_header(); ?>
+<section class="hero-section">
+<div class="container">
+<h1><?php the_title(); ?></h1>
+<p>Welcome to our local shop!</p>
+</div>
+</section>
+<section class="featured-products">
+<div class="container">
+<h2>Featured Products</h2>
+<?php
+?>
+</div>
+</section>
+echo do_shortcode('[products limit="4" columns="4" visibility="featured"]');
+<section class="about-section">
+<div class="container">
+<h2>Our Story</h2>
+<?php the_content(); ?>
+</div>
+</section>
+<?php get_footer(); ?>
